@@ -6,20 +6,17 @@
 
           <div class="modal-header">
             <slot name="header">
-              default header
+              <h2>Select the fields which should be grouped</h2>
             </slot>
           </div>
 
           <div class="modal-body">
-            <slot name="body">
-              default body
-            </slot>
-          </div>
-
-          <div class="modal-footer">
-            <slot name="footer">
-              default footer
-
+            <slot name="body" >
+              <div v-for="field in fields" :key="fields.indexOf(field)" >
+                <input type="checkbox" :id="`checkbox-${field}`" @click="checkField(field)">
+                <label for="checkbox">{{field}}</label>
+              </div>
+              <p>you selected {{checkedFields}}</p>
             </slot>
           </div>
           <button class="modal-default-button" @click="$emit('close')">
@@ -34,6 +31,27 @@
 <script>
   export default {
     name: 'GroupFieldsModal',
+    props: {
+      fields: {
+        type: Array
+      }
+    },
+    data: () => {
+      return {
+        groupedFields: [],
+        checkedFields: []
+      }
+    },
+    methods: {
+      checkField(type) {
+        const index = this.checkedFields.indexOf(type)
+        if(index === -1) {
+          this.checkedFields.push(type);
+        } else {
+          this.checkedFields.splice(index, 1);
+        }
+      }
+    }
   }
 </script>
 <style scoped>
