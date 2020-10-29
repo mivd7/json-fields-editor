@@ -1,31 +1,35 @@
 <template>
   <div id="app">
-    <Setup  v-on:showEditor="handleShow"/>
-    <Editor v-if="showJsonEditor" :fieldTypes="formFields"/>
+    <h1 style="text-align: left;">Fields</h1>
+    <FieldsView  v-if="!showJsonEditor" v-on:showEditor="handleShow"/>
+    <Editor v-if="showJsonEditor" :fieldTypes="fields"/>
+    <a @click="showJsonEditor = !showJsonEditor" class="switch-link">
+      {{!showJsonEditor ? 'Edit Field Content' : 'Group Fields'}}
+    </a>
   </div>
 </template>
 
 <script>
 import Editor from './components/Editor.vue'
-import Setup from './components/Setup.vue'
+import FieldsView from './components/FieldsView.vue'
+import dummyFields from './lib/dummyFields';
 
 export default {
   name: 'app',
   components: {
     Editor,
-    Setup
+    FieldsView
   },
   data: () => {
       return {
         showJsonEditor: false,
-        formFields: null
+        fields: dummyFields
       }
   },
   methods: {
     handleShow(fields) {
-      console.log('fields on emit', fields)
       this.showJsonEditor = true;
-      this.formFields = fields;
+      this.fields = fields;
     }
   }
 }
@@ -41,5 +45,9 @@ export default {
   margin-top: 60px;
 }
 
-
+.switch-link {
+  color: green;
+  text-decoration: underline;
+  cursor: pointer;
+}
 </style>
