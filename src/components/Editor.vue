@@ -3,8 +3,7 @@
     <JsonEditor :options="{
             confirmText: 'confirm',
             cancelText: 'cancel',
-        }" :objData="jsonData" v-model="jsonData">
-    </JsonEditor>
+        }" v-bind:objData="jsonData" v-model="jsonData"/>
     <button @click="handleSubmit">Submit</button>
     <button @click="addField">Add field</button>
   </div>
@@ -110,6 +109,13 @@
         }
       }
     },
+    created() {
+      //
+      let addIcons = document.querySelectorAll(".v-json-edit-icon-add")
+      addIcons.forEach(icon => {
+        icon.style.visibility = 'hidden';
+      })
+    },
     methods: {
       handleSubmit() {
         console.log(JSON.stringify(this.jsonData));
@@ -144,5 +150,9 @@
 
 .json-desc {
   visibility: hidden;
+}
+
+.key-input {
+   pointer-events: none;
 }
 </style>
