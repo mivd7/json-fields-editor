@@ -5,20 +5,20 @@
       <p v-for="field in fields" :key="fields.indexOf(field)">
         {{field}}
       </p>
-      <button class="btn-group-fields" @click="showModal = true;">Group fields</button>
-      <button class="btn-next-step" @click="showJsonEditor()" >Manage field content</button>
+      <button class="btn-group-fields" @click="showModal = true;" style="margin-right: 10px;">Group fields</button>
+      <button class="btn-next-step" @click="showJsonEditor()" >Edit field content</button>
     </ul>
-    <GroupFieldsModal v-if="showModal" v-on:close="showModal = false" :fields="fields"/>
+    <GroupFields v-if="showModal" :fields="fields"/>
   </div>
 </template>
 
 <script>
   import dummyFields from '../lib/dummyFields';
-  import GroupFieldsModal from './GroupFieldsModal'
+  import GroupFields from './GroupFields'
   export default {
     name: 'Setup',
     components: {
-      GroupFieldsModal
+      GroupFields
     },
     data: () => {
       return {
