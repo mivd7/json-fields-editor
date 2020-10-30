@@ -4,7 +4,7 @@
     <FieldsConfigurator  v-if="!showJsonEditor" v-on:showEditor="handleShow"/>
     <Editor v-if="showJsonEditor" :fieldTypes="fields"/>
     <a @click="showJsonEditor = !showJsonEditor" class="switch-link">
-      {{!showJsonEditor ? 'Edit Field Content' : 'Group Fields'}}
+      {{!showJsonEditor ? 'Edit JSON data' : 'Group Fields'}}
     </a>
   </div>
 </template>
