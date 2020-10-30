@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <h1 style="text-align: left;">Fields</h1>
-    <FieldsView  v-if="!showJsonEditor" v-on:showEditor="handleShow"/>
+    <h1>Fields Configurator</h1>
+    <FieldsConfigurator  v-if="!showJsonEditor" v-on:showEditor="handleShow"/>
     <Editor v-if="showJsonEditor" :fieldTypes="fields"/>
     <a @click="showJsonEditor = !showJsonEditor" class="switch-link">
       {{!showJsonEditor ? 'Edit Field Content' : 'Group Fields'}}
@@ -11,19 +11,19 @@
 
 <script>
 import Editor from './components/Editor.vue'
-import FieldsView from './components/FieldsView.vue'
+import FieldsConfigurator from './components/FieldsConfigurator.vue'
 import dummyFields from './lib/dummyFields';
 
 export default {
   name: 'app',
   components: {
     Editor,
-    FieldsView
+    FieldsConfigurator
   },
   data: () => {
       return {
         showJsonEditor: false,
-        fields: dummyFields
+        fields: [...dummyFields]
       }
   },
   methods: {
