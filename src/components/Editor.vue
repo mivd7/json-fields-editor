@@ -13,7 +13,7 @@
   export default {
     name: 'Editor',
     props: {
-      fieldTypes: {
+      fields: {
         type: Array
       }
     },
@@ -25,14 +25,14 @@
       }
     },
     created() {
-      //
-      console.log('fieldTypes props', this.fieldTypes)
-      this.fieldTypes.map(fieldName => this.jsonData.fields.push({
-        type: fieldName,
-        header: 'FIELD_HEADER',
-        description: 'FIELD DESCRIPTION',
-        isParentField: false
-      }))
+      this.fields.map(field => {
+        if(Object.keys(field)[0].startsWith('group')) {
+          console.log('groupField obj', field[Object.keys(field)[0]])
+          this.jsonData.fields.push(field[Object.keys(field)[0]])
+        } else {
+          this.jsonData.fields.push(field)
+        }
+      })
     },
     methods: {
       handleSubmit() {

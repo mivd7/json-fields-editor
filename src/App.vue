@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <h1>Fields Configurator</h1>
-    <FieldsConfigurator  v-if="!showJsonEditor" v-on:showEditor="handleShow"/>
-    <Editor v-if="showJsonEditor" :fieldTypes="fields"/>
+    <FieldsConfigurator  v-if="!showJsonEditor" v-on:configuratorResult="handleResult"/>
+    <Editor v-if="showJsonEditor" :fields="fields"/>
     <a @click="showJsonEditor = !showJsonEditor" class="switch-link">
       {{!showJsonEditor ? 'Edit JSON data' : 'Group Fields'}}
     </a>
@@ -27,7 +27,8 @@ export default {
       }
   },
   methods: {
-    handleShow(fields) {
+    handleResult(fields) {
+      console.log(fields)
       this.showJsonEditor = true;
       this.fields = fields;
     }
