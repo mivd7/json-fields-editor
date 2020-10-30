@@ -27,10 +27,18 @@
     created() {
       this.fields.map(field => {
         if(Object.keys(field)[0].startsWith('group')) {
-          console.log('groupField obj', field[Object.keys(field)[0]])
-          this.jsonData.fields.push(field[Object.keys(field)[0]])
+          const groupName = Object.keys(field)[0];
+          console.log('groupField obj', field[groupName])
+          const parentField = {
+            type: 'parent_field_' + groupName,
+            header: '',
+            description: '',
+            isParentField: true
+          }
+          this.jsonData.fields.push([parentField]);
+          this.jsonData.fields.push(field[groupName])
         } else {
-          this.jsonData.fields.push(field)
+          this.jsonData.fields.push([field])
         }
       })
     },
