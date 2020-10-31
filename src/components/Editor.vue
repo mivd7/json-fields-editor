@@ -5,7 +5,6 @@
             cancelText: 'cancel',
         }" :objData="jsonData" v-model="jsonData"/>
     <button @click="handleSubmit">Submit</button>
-    <button @click="addField">Add field</button>
   </div>
 </template>
 
@@ -28,15 +27,10 @@
       this.fields.map(field => {
         if(Object.keys(field)[0].startsWith('group')) {
           const groupName = Object.keys(field)[0];
-          console.log('groupField obj', field[groupName])
-          const parentField = {
-            type: 'parent_field_' + groupName,
-            header: '',
-            description: '',
-            isParentField: true
-          }
+          let parentField = field[groupName].find(subField => subField.type === 'parent_field_' + groupName);
+          parentField.isParentField = true;
           this.jsonData.fields.push([parentField]);
-          this.jsonData.fields.push(field[groupName])
+          this.jsonData.fields.push(field[groupName].filter(x => x.type !== 'parent_field_' + groupName))
         } else {
           this.jsonData.fields.push([field])
         }
@@ -44,17 +38,8 @@
     },
     methods: {
       handleSubmit() {
-        console.log(JSON.stringify(this.jsonData));
+        window.alert(JSON.stringify(this.jsonData));
       },
-      addField() {
-        console.log('hi!')
-        this.jsonData.fields.push([{
-           "type": "FIELD TYPE",
-            "header": "FIELD HEADER",
-            "description": "FIELD DESCRIPTION",
-            "isParentField": false
-        }])
-      }
     },
   };
 </script>

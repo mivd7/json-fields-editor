@@ -17,13 +17,19 @@
 
       <div class="field-group-container">
         <div class="field-group-list" v-for="(group, groupIndex) in groups" :key="groupIndex">
-          <div class="list-group-item" style="background-color: green; color: white;">Group
-                {{groupIndex + 1}}</div>
+          
           <draggable class="list-group" v-if="group['group' + groupIndex]" :list="group['group' + groupIndex]"
-            group="people">
-            
-            <div class="list-group-item" v-for="(field, fieldIndex) in group['group' + groupIndex]"
+            group="people" draggable=".list-group-item">
+            <div slot="header" class="list-group-header" style="background-color: green; color: white;">
+              <span>Group {{groupIndex + 1}}
+                <a @click="editFieldContent(group['group' + groupIndex])" 
+                  style="color: white; text-decoration: underline; text-align: right;">edit</a>
+              </span>
+            </div>
+
+            <div class="list-group-item" v-for="(field, fieldIndex) in group['group' + groupIndex].filter(field => field.type !== 'parent_field_group' + groupIndex)"
               :key="fieldIndex">
+              
               <span>{{field.type}} <a @click="editFieldContent(field)" style="color: green; text-decoration: underline; text-align: right;">edit</a></span>
             </div>
           </draggable>
@@ -104,7 +110,11 @@
     methods: {
       addGroup: function () {
         let newGroup = {
-          [`group${this.groupAmount}`]: []
+          [`group${this.groupAmount}`]: [{
+            type: 'parent_field_group' + this.groupAmount,
+            header: '',
+            description: ''
+          }]
         }
         this.groups.push(newGroup)
         this.groupAmount++
@@ -122,10 +132,15 @@
       submitOrder: function () {
         this.$emit('configuratorResult', this.result);
       },
-      editFieldContent: function(field) {
-        this.editFieldItem = field;
-        this.showEditField = true;
-      }
+      editFieldContent: function(item) {
+        if(!Array.isArray(item)) { 
+          this.editFieldItem = item;
+          this.showEditField = true;
+        } else {
+          this.editFieldItem = item.find(x => x.type.startsWith('parent_field'));
+          this.showEditField = true;
+        }
+      },
     },
     created() {
       if(this.result.length === 0) {

@@ -16,14 +16,8 @@ export default {
       required: true,
     }
   },
-  // data: () => {
-  //   return {
-  //     formModel: this.field
-  //   }
-  // },
   methods: {
     done() {  
-       console.log('emitting', this.field)
        this.$emit('fieldUpdated', this.field)
     }
   }
