@@ -3,9 +3,6 @@
     <h1>Fields Configurator</h1>
     <FieldsConfigurator  v-if="!showJsonEditor" v-on:configuratorResult="handleResult"/>
     <Editor v-if="showJsonEditor" :fields="fields"/>
-    <a @click="showJsonEditor = !showJsonEditor" class="switch-link">
-      {{!showJsonEditor ? 'Edit JSON data' : 'Group Fields'}}
-    </a>
   </div>
 </template>
 

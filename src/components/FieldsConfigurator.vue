@@ -136,7 +136,7 @@
         const groupExists = this.orderedFields.findIndex(field => Object.keys(field)[0] === parentFieldType) !== -1;
         const groupNumber = Number(parentFieldType.replace(/\D/g, ""));
         if (!groupExists) {
-          const result = this.orderedFields.concat(this.groups)
+          const result = this.groups.concat(this.orderedFields)
           const noDuplicates = this.filterDuplicates(result, groupNumber - 1)
           this.orderedFields = noDuplicates;
         }  
@@ -175,13 +175,13 @@
         this.helpTopic = column;
         switch (column) {
           case 'order':
-            this.helpContent = 'Change the overall order of how the fields are shown'
+            this.helpContent = 'Drag and drop the fields and field groups to decide the order of how the fields are shown.'
             break;
           case 'types':
             this.helpContent = 'All the field types currently available for this flow';
             break;
           case 'groups':
-            this.helpContent = 'Here you can group fields to show them together in one screen. The parent field is automatically created and represents the step preceeding the grouped fields'
+            this.helpContent = 'Make a group to show multiple fields in one step. The parent field represents the step preceeding the grouped fields'
             break;
           default:
             break;
