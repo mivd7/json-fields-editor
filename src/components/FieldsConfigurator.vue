@@ -1,8 +1,20 @@
 <template>
   <div class="row" v-if="!showChangeOrder && !showEditField">
-    <div class="col-3">
+    <div class="col-3" style="position: relative;">
+      <div class="row" >
+          <div class="col-9">      
+            <h3 style="text-align: right;">Field Types </h3>
+          </div>
+          <div class="col-3" style="text-align: left;">
+            <div @mouseover="handleMouseOver('types')" @mouseout="handleMouseLeave"> 
+              <img src="../assets/information.png" alt="wtf??" class="question-mark-icon"/>
+              <HelpModal v-if="helpTopic === 'types'" :show="showHelpModal" :content="helpContent" v-on:close="showHelpModal = false"/>
+            </div>
+
+          </div>
+      </div>
       <div class="field-type-container">
-        <h3>Field Types</h3>
+        
         <!-- <p>Here are all the fieldtypes available to this flow</p> -->
         <draggable class="list-group" :list="availableFields" group="people" @change="handleFieldChange">
           <div class="list-group-item" v-for="(field, index) in availableFields" :key="index"
@@ -12,21 +24,26 @@
         </draggable>
       </div>
     </div>
-    <div class="col-3">
 
-      <h3>Field Groups </h3>
-      <!-- <p>Here you can group fields together</p> -->
-
+    <div class="col-3" style="position: relative;">
+      <div class="row" >
+        <div class="col-9">      
+          <h3 style="text-align: right;">Field Groups </h3>
+        </div>
+        <div class="col-3" style="text-align: left;">
+          <div @mouseover="handleMouseOver('groups')" @mouseout="handleMouseLeave"> 
+              <img  src="../assets/information.png" alt="wtf??" class="question-mark-icon"/>
+              <HelpModal v-if="helpTopic === 'groups'" :show="showHelpModal" :content="helpContent" v-on:close="showHelpModal = false"/>
+          </div>
+        </div>
+      </div>
       <div class="field-group-container">
         <div class="field-group-list" v-for="(group, groupIndex) in groups" :key="groupIndex">
 
           <draggable class="list-group" v-if="group['group' + groupIndex]" :list="group['group' + groupIndex]"
             group="people" draggable=".list-group-item" :move="checkFieldMove" @change="handleOrderChange('group'+groupIndex)" :sort="checkFieldMove">
             <div slot="header" class="list-group-header" style="background-color: green; color: white;">
-              <span>Group {{groupIndex + 1}}
-                <a @click="editFieldContent(group['group' + groupIndex])" 
-                  style="color: white; text-decoration: underline; text-align: right;">edit</a>
-              </span>
+              <span>Group {{groupIndex + 1}}</span>
             </div>
 
             <div class="list-group-item" v-for="(field, fieldIndex) in group['group' + groupIndex]"
@@ -39,41 +56,39 @@
       </div>
       <button @click="addGroup()">Add group</button>
     </div>
-    <div class="col-3">
-      <h3>Field Order</h3>
-      <!-- <p>Change the show order of the fields</p> -->
+
+    <div class="col-3" style="position: relative;">
+      <div class="row" >
+        <div class="col-9">      
+          <h3 style="text-align: right;">Field Order </h3>
+        </div>
+        <div class="col-3" style="text-align: left;">
+          <div @mouseover="handleMouseOver('order')" @mouseout="handleMouseLeave"> 
+              <img src="../assets/information.png" alt="wtf??" class="question-mark-icon"/>
+              <HelpModal v-if="helpTopic === 'order'" :show="showHelpModal" :content="helpContent" v-on:close="showHelpModal = false"/>
+          </div>
+        </div>
+        
+      </div>
       <div class="field-group-container">
         <div class="field-group-list">
           <draggable class="list-group" :list="orderedFields" group="people">
             <div v-for="(value, index) in orderedFields" :key="index">
-
-
-              <div v-if="Array.isArray(value[Object.keys(value)[0]])" class="ordered-fields-item">{{index + 1}}.
+              <div v-if="Array.isArray(value[Object.keys(value)[0]])" class="list-group-item">{{index + 1}}.
                 <span v-for="(val, valIndex) in value[Object.keys(value)[0]]" :key="valIndex">{{val.type}}, </span>
               </div>
-              <div v-else class="ordered-fields-item">{{index + 1}}. {{value.type}}</div>
+              <div v-else class="list-group-item">{{index + 1}}. {{value.type}} <a @click="editFieldContent(value)" style="color: green; text-decoration: underline; text-align: right;">edit</a></div>
             </div>
           </draggable>
         </div>
       </div>
     </div>
-    <!-- <div class="col-3">
-      <div class="field-type-container">
-        <h3>Single Fields</h3>
-        <draggable class="list-group" :list="singleFields" group="people">
-          <div class="list-group-item" v-for="(singleField, index) in singleFields" :key="index"
-            style="background-color: transparent;">
-            {{ singleField.type }}
-          </div>
-        </draggable>
-      </div>
-    </div> -->
+   
     <div class="btn-submit-container">
       <button class="btn-submit" @click="emitResult()">Save configuration</button>
     </div>
-    <!-- <button @click="showChangeOrder = false">Back to grouping</button> -->
-
   </div>
+  
   <div v-else-if="showEditField" class="row">
     <EditFieldForm :field="editFieldItem" v-on:fieldUpdated="showEditField = false" />
   </div>
@@ -81,13 +96,15 @@
 <script>
   import draggable from 'vuedraggable';
   import dummyFields from '../lib/dummyFields';
-  import EditFieldForm from './EditFieldForm'
+  import EditFieldForm from './EditFieldForm';
+  import HelpModal from './HelpModal';
 
   export default {
     name: "FieldsConfigurator",
     components: {
       draggable,
-      EditFieldForm
+      EditFieldForm,
+      HelpModal
     },
     data() {
       return {
@@ -97,6 +114,9 @@
         groupAmount: 0,
         showChangeOrder: false,
         showEditField: false,
+        showHelpModal: false,
+        helpTopic: '',
+        helpContent: '',
         editFieldItem: {}
       };
     },
@@ -113,18 +133,13 @@
         this.groupAmount++
       },
       handleOrderChange: function (parentFieldType) {
-        // const doubleEntry = this.filterDuplicates(this.groups, parentFieldType);
-        
         const groupExists = this.orderedFields.findIndex(field => Object.keys(field)[0] === parentFieldType) !== -1;
         const groupNumber = Number(parentFieldType.replace(/\D/g, ""));
-        console.log(groupNumber)
         if (!groupExists) {
           const result = this.orderedFields.concat(this.groups)
           const noDuplicates = this.filterDuplicates(result, groupNumber - 1)
           this.orderedFields = noDuplicates;
-          console.log('orderedFields after no duplicates filter', this.orderedFields)
-        }
-        
+        }  
       },
       emitResult: function () {
         this.$emit('configuratorResult', this.orderedFields);
@@ -133,7 +148,6 @@
         if(e.draggedContext.element.type.startsWith('parent_field') || e.draggedContext.futureIndex === 0) {
           return false;
         }
-
       },
       handleFieldChange: function(e) {
         if(e.removed) {
@@ -157,6 +171,32 @@
           this.showEditField = true;
         }
       },
+      handleMouseOver: function (column) {
+        this.helpTopic = column;
+        switch (column) {
+          case 'order':
+            this.helpContent = 'Change the overall order of how the fields are shown'
+            break;
+          case 'types':
+            this.helpContent = 'All the field types currently available for this flow';
+            break;
+          case 'groups':
+            this.helpContent = 'Here you can group fields to show them together in one screen. The parent field is automatically created and represents the step preceeding the grouped fields'
+            break;
+          default:
+            break;
+        }
+        if(this.showHelpModal === false) {
+          this.showHelpModal = true
+        }
+      },
+      handleMouseLeave: function() {
+        console.log('mouse leave!');
+        this.helpTopic = '';
+        if(this.showHelpModal === true) {
+          this.showHelpModal = false;
+        }
+      }
     },
     created() {
       if (this.orderedFields.length === 0) {
@@ -187,6 +227,13 @@
     -webkit-box-flex: 0;
     flex: 0 0 33%;
     max-width: 33%;
+  }
+
+  .col-9 {
+    -ms-flex: 0 0 67%;
+    -webkit-box-flex: 0;
+    flex: 0 0 67%;
+    max-width: 67%;
   }
 
   .col-12 {
@@ -228,7 +275,7 @@
   }
 
   .field-type-container {
-    margin: 25px;
+    margin: 0 25px 25px 25px;
   }
 
   .field-group-list {
@@ -244,5 +291,10 @@
   .ordered-fields-item {
     margin-top: 5px;
     border: 1px solid grey;
+  }
+
+  .question-mark-icon {
+    width: 12.5%;
+    margin: 21px 5px 0;
   }
 </style>
