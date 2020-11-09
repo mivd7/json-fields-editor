@@ -198,11 +198,31 @@
           const iframeFields = JSON.parse(e.data)
           console.log(iframeFields)
           iframeFields.map(field => {
-            this.availableFields.push({
-                type: field,
+            if(field !== 'address_fields') {
+              this.availableFields.push({
+                  type: field,
+                  header: '',
+                  description: '',
+              })
+            } else {
+              this.availableFields.push({
+                type: 'street',
                 header: '',
                 description: '',
-            })
+              }, {
+                type: 'number',
+                header: '',
+                description: '',
+              },{
+                type: 'zip_code',
+                header: '',
+                description: '',
+              },{
+                type: 'city',
+                header: '',
+                description: '',
+              })
+            }
           })
           this.orderedFields = [...this.availableFields];
         }   
