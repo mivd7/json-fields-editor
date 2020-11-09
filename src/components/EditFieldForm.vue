@@ -1,8 +1,8 @@
 <template>
 <div class="form-container">
   <h1 style="text-align: center;">Edit content for {{ field.type }}</h1>
-  <input type="text" v-model="field.header" placeholder="Header"/><br>
-  <input type="text" v-model="field.description" placeholder="Description"/><br>
+  <input class="input-field input-field__header" type="text" v-model="field.header" placeholder="Header"/><br>
+  <input class="input-field input-field__description" type="text" v-model="field.description" placeholder="Description"/><br>
   <button @click="done">Done</button>
 </div>
 </template>
@@ -29,5 +29,12 @@ export default {
     display: block;
     margin-left: auto;
     margin-right: auto;
+  }
+  .input-field {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 10px;
+    border-color: lightgrey;
+    min-width: 150px;
   }
 </style>

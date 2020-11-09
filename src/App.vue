@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <h1>Fields Configurator</h1>
-    <FieldsConfigurator  v-if="!showJsonEditor" v-on:configuratorResult="handleResult"/>
-    <Editor v-if="showJsonEditor" :fields="fields"/>
+    <FieldsConfigurator  v-if="!showJsonEditor" :fieldProps="fields" v-on:configuratorResult="handleResult"/>
+    <Editor v-if="showJsonEditor" :fields="fields" v-on:backToConfigurator="showJsonEditor = false;"/>
   </div>
 </template>
 
@@ -25,7 +25,6 @@ export default {
   },
   methods: {
     handleResult(fields) {
-      console.log(fields)
       this.showJsonEditor = true;
       this.fields = fields;
     }

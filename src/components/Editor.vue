@@ -5,6 +5,7 @@
             cancelText: 'cancel',
         }" :objData="jsonData" v-model="jsonData"/>
     <button @click="handleSubmit">Submit</button>
+    <button @click="$emit('backToConfigurator')">Back</button>
   </div>
 </template>
 
@@ -40,6 +41,7 @@
       handleSubmit() {
         window.alert(JSON.stringify(this.jsonData));
       },
+      
     },
   };
 </script>

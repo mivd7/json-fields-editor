@@ -1,5 +1,5 @@
 <template>
-  <div class="row" v-if="!showChangeOrder && !showEditField">
+  <div class="row" v-if="!showEditField">
     <div class="col-3" style="position: relative;">
       <div class="row" >
           <div class="col-9">      
@@ -10,12 +10,9 @@
               <img src="../assets/information.png" alt="wtf??" class="question-mark-icon"/>
               <HelpModal v-if="helpTopic === 'types'" :show="showHelpModal" :content="helpContent" v-on:close="showHelpModal = false"/>
             </div>
-
           </div>
       </div>
-      <div class="field-type-container">
-        
-        <!-- <p>Here are all the fieldtypes available to this flow</p> -->
+      <div class="field-type-container">        
         <draggable class="list-group" :list="availableFields" group="people" @change="handleFieldChange">
           <div class="list-group-item" v-for="(field, index) in availableFields" :key="index"
             style="background-color: transparent;">
@@ -37,7 +34,7 @@
           </div>
         </div>
       </div>
-      <div class="field-group-container">
+      <div class="field-group-container" v-if="groups.length > 0">
         <div class="field-group-list" v-for="(group, groupIndex) in groups" :key="groupIndex">
 
           <draggable class="list-group" v-if="group['group' + groupIndex]" :list="group['group' + groupIndex]"
@@ -95,7 +92,7 @@
 </template>
 <script>
   import draggable from 'vuedraggable';
-  import dummyFields from '../lib/dummyFields';
+  // import dummyFields from '../lib/dummyFields';
   import EditFieldForm from './EditFieldForm';
   import HelpModal from './HelpModal';
 
@@ -106,13 +103,13 @@
       EditFieldForm,
       HelpModal
     },
+    props: ['fieldProps'],
     data() {
       return {
         availableFields: [],
         groups: [],
         orderedFields: [],
         groupAmount: 0,
-        showChangeOrder: false,
         showEditField: false,
         showHelpModal: false,
         helpTopic: '',
@@ -136,9 +133,7 @@
         const groupExists = this.orderedFields.findIndex(field => Object.keys(field)[0] === parentFieldType) !== -1;
         const groupNumber = Number(parentFieldType.replace(/\D/g, ""));
         if (!groupExists) {
-          const result = this.groups.concat(this.orderedFields)
-          const noDuplicates = this.filterDuplicates(result, groupNumber - 1)
-          this.orderedFields = noDuplicates;
+          this.orderedFields = this.filterDuplicates(this.groups.concat(this.orderedFields), groupNumber - 1);
         }  
       },
       emitResult: function () {
@@ -174,14 +169,14 @@
       handleMouseOver: function (column) {
         this.helpTopic = column;
         switch (column) {
-          case 'order':
-            this.helpContent = 'Drag and drop the fields and field groups to decide the order of how the fields are shown.'
-            break;
           case 'types':
             this.helpContent = 'All the field types currently available for this flow';
             break;
           case 'groups':
             this.helpContent = 'Make a group to show multiple fields in one step. The parent field represents the step preceeding the grouped fields'
+            break;
+          case 'order':
+            this.helpContent = 'Drag and drop the fields and field groups to decide the order of how the fields are shown.'
             break;
           default:
             break;
@@ -191,7 +186,6 @@
         }
       },
       handleMouseLeave: function() {
-        console.log('mouse leave!');
         this.helpTopic = '';
         if(this.showHelpModal === true) {
           this.showHelpModal = false;
@@ -200,11 +194,22 @@
     },
     created() {
       if (this.orderedFields.length === 0) {
-        dummyFields.map(fieldType => this.availableFields.push({
-          type: fieldType,
-          header: '',
-          description: '',
-        }))
+        if(typeof this.fieldProps[0] === 'string') {
+          //initial input from bob
+          this.fieldProps.map(field => {
+              this.availableFields.push({
+                type: field,
+                header: '',
+                description: '',
+              })
+          })
+        } else {
+          //when returning from json editor interface to fields configurator
+          this.groups = this.fieldProps.filter(field => Object.keys(field)[0].startsWith('group'));
+          console.log(this.groups)
+          this.groupAmount = this.groups.length
+          this.availableFields = this.fieldProps.filter(field => !Object.keys(field)[0].startsWith('group'));
+        }
         this.orderedFields = [...this.availableFields];
       }
     },
