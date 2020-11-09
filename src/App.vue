@@ -20,14 +20,23 @@ export default {
   data: () => {
       return {
         showJsonEditor: false,
-        fields: [...dummyFields]
+        fields: []
       }
+  },
+  created() {
+      // window.addEventListener('message', this.handleIncomingMessage, false);
   },
   methods: {
     handleResult(fields) {
       this.showJsonEditor = true;
       this.fields = fields;
-    }
+    },
+    // handleIncomingMessage(e) {
+    //   const validOrigins = ["http://ap.localtest.me", "http://bob.zalinco.com", "http://ap.d-promo.com"]
+    //   if (validOrigins.indexOf(e.origin) !== -1) {
+    //     this.fields = JSON.parse(e.data)
+    //   }   
+    // },
   }
 }
 </script>

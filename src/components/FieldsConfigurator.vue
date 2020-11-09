@@ -1,5 +1,6 @@
 <template>
   <div class="row" v-if="!showEditField">
+    <p>{{fieldProps}}</p>
     <div class="col-3" style="position: relative;">
       <div class="row" >
           <div class="col-9">      
@@ -190,28 +191,45 @@
         if(this.showHelpModal === true) {
           this.showHelpModal = false;
         }
-      }
-    },
-    created() {
-      if (this.orderedFields.length === 0) {
-        if(typeof this.fieldProps[0] === 'string') {
-          //initial input from bob
-          this.fieldProps.map(field => {
-              this.availableFields.push({
+      },
+      handleIncomingMessage(e) {
+        const validOrigins = ["http://ap.localtest.me", "http://bob.zalinco.com", "http://ap.d-promo.com"]
+        if (validOrigins.indexOf(e.origin) !== -1) {
+          const iframeFields = JSON.parse(e.data)
+          console.log(iframeFields)
+          iframeFields.map(field => {
+            this.availableFields.push({
                 type: field,
                 header: '',
                 description: '',
-              })
+            })
           })
-        } else {
-          //when returning from json editor interface to fields configurator
-          this.groups = this.fieldProps.filter(field => Object.keys(field)[0].startsWith('group'));
-          console.log(this.groups)
-          this.groupAmount = this.groups.length
-          this.availableFields = this.fieldProps.filter(field => !Object.keys(field)[0].startsWith('group'));
-        }
-        this.orderedFields = [...this.availableFields];
-      }
+          this.orderedFields = [...this.availableFields];
+        }   
+      },
+    },
+    created() {
+      window.addEventListener('message', this.handleIncomingMessage, false);
+
+      // if (this.orderedFields.length === 0) {
+      //   if(typeof this.fieldProps[0] === 'string') {
+      //     //initial input from bob
+          
+      //     this.fieldProps.map(field => {
+      //         this.availableFields.push({
+      //           type: field,
+      //           header: '',
+      //           description: '',
+      //         })
+      //     })
+      //   } else {
+      //     //when returning from json editor interface to fields configurator
+      //     this.groups = this.fieldProps.filter(field => Object.keys(field)[0].startsWith('group'));
+      //     console.log(this.groups)
+      //     this.groupAmount = this.groups.length
+      //     this.availableFields = this.fieldProps.filter(field => !Object.keys(field)[0].startsWith('group'));
+      //   }
+      // }
     },
 
   };
