@@ -13,7 +13,7 @@
           </div>
       </div>
       <div class="field-type-container">        
-        <draggable class="available-fields-list-group list-group" :list="availableFields" group="people" @change="handleFieldChange">
+        <draggable class="available-fields-list-group list-group" :move="checkSingleFieldMove" :list="availableFields" group="people" @change="handleFieldChange">
           <div class="list-group-item" v-for="(field, index) in availableFields" :key="index"
             style="background-color: transparent;">
             {{ field.type }}
@@ -35,12 +35,12 @@
         </div>
       </div>
       <div class="field-group-container" v-if="groups.length > 0">
-        <div class="field-group-list" v-for="group in groups" :key="group.id">
+        <div class="field-group-list" v-for="group in groups" :key="group.groupId">
 
           <draggable class="group-fields-list-group list-group" v-if="group.groupFields" :list="group.groupFields"
-            group="people" draggable=".list-group-item" :move="checkFieldMove" @change="handleOrderChange" :sort="checkFieldMove">
+            group="people" draggable=".list-group-item" :move="checkGroupFieldMove" @change="handleOrderChange" :sort="checkGroupFieldMove">
             <div slot="header" class="list-group-header" style="background-color: green; color: white;">
-              <span>Group {{group.id + 1}}</span>
+              <span>Group {{group.groupId + 1}}</span>
             </div>
 
             <div class="list-group-item" v-for="(field, fieldIndex) in group.groupFields"
@@ -71,7 +71,7 @@
         <div class="field-group-list">
           <draggable class="order-fields-list-group list-group" :move="checkOrderMove" :list="orderedFields" group="people">
             <div v-for="(field, index) in orderedFields" :key="index">
-              <div v-if="field.hasOwnProperty('id')" class="list-group-item">{{index + 1}}. 
+              <div v-if="field.hasOwnProperty('groupId')" class="list-group-item">{{index + 1}}. 
                 <!-- {{field.groupFields.map(groupField => groupField.type)}} -->
                 <span v-for="(groupField, index) in field.groupFields" :key="index">{{groupField.type}}, </span>
               </div>
@@ -93,7 +93,7 @@
 </template>
 <script>
   import draggable from 'vuedraggable';
-  // import dummyFields from '../lib/dummyFields';
+  import dummyFields from '../lib/dummyFields';
   import EditFieldForm from './EditFieldForm';
   import HelpModal from './HelpModal';
 
@@ -104,7 +104,12 @@
       EditFieldForm,
       HelpModal
     },
-    props: ['fieldProps'],
+    props: {
+      fieldProps: {
+        type: Array,
+        required: true,
+      },
+    },
     data() {
       return {
         availableFields: [],
@@ -121,7 +126,7 @@
     methods: {
       addGroup: function () {
         let newGroup = {
-          id: this.groupAmount,
+          groupId: this.groupAmount,
           groupFields: [{
             type: 'parent_field_group' + this.groupAmount,
             header: '',
@@ -138,7 +143,12 @@
       emitResult: function () {
         this.$emit('configuratorResult', this.orderedFields);
       },
-      checkFieldMove: function(e) {
+      checkSingleFieldMove: function(e) {
+        if(e.to.getAttribute('class').includes('order-fields-list-group')) {
+          return false;
+        }
+      },
+      checkGroupFieldMove: function(e) {
         if(e.draggedContext.element.type.startsWith('parent_field') || e.draggedContext.futureIndex === 0) {
           return false;
         }
@@ -182,31 +192,53 @@
       handleMouseLeave: function() {
         this.helpTopic = '';
         this.showHelpModal = false;
-      }
-    },
-    created() {
-      if (this.orderedFields.length === 0) {
-        if(typeof this.fieldProps[0] === 'string') {
-          //initial input from bob
-          this.fieldProps.map(field => {
+      },
+      handleIncomingMessage(e) {
+        const validOrigins = ["http://ap.localtest.me", "http://bob.zalinco.com", "http://ap.d-promo.com"]
+        if (validOrigins.indexOf(e.origin) !== -1 && this.orderedFields.length === 0) {
+          //handle initial input from bob iframe parent
+          const initialFields = JSON.parse(e.data)
+          initialFields.map(field => {
+            if(field !== 'address_fields') {
               this.availableFields.push({
-                type: field,
+                  type: field,
+                  header: '',
+                  description: '',
+              })
+            } else {
+              this.availableFields.push({
+                type: 'street',
+                header: '',
+                description: '',
+              }, {
+                type: 'number',
+                header: '',
+                description: '',
+              },{
+                type: 'zip_code',
+                header: '',
+                description: '',
+              },{
+                type: 'city',
                 header: '',
                 description: '',
               })
+            }
           })
-        } else {
-          //when returning from json editor interface to fields configurator
-          this.groups = this.fieldProps.filter(field => Object.keys(field)[0].startsWith('group'));
-          console.log(this.groups)
+          this.orderedFields = [...this.availableFields];
+        }   
+      },
+    },
+    created() {
+      window.addEventListener('message', this.handleIncomingMessage, false);
+      if(this.fieldProps.length > 0) {
+          this.groups = this.fieldProps.filter(field => field.hasOwnProperty('groupId'));
           this.groupAmount = this.groups.length
-          this.availableFields = this.fieldProps.filter(field => !Object.keys(field)[0].startsWith('group'));
-        }
-        this.orderedFields = [...this.availableFields];
+          this.availableFields = this.fieldProps.filter(field => !field.hasOwnProperty('groupId'));
+          this.orderedFields = this.groups.concat(this.availableFields);
       }
     },
-
-  };
+  }
 </script>
 <style>
   .row {

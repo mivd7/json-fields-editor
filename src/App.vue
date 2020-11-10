@@ -2,14 +2,13 @@
   <div id="app">
     <h1>Fields Configurator</h1>
     <FieldsConfigurator  v-if="!showJsonEditor" :fieldProps="fields" v-on:configuratorResult="handleResult"/>
-    <Editor v-if="showJsonEditor" :fields="fields" v-on:backToConfigurator="showJsonEditor = false;"/>
+    <Editor v-if="showJsonEditor" :fields="fields" v-on:backToConfigurator="handleBack"/>
   </div>
 </template>
 
 <script>
 import Editor from './components/Editor.vue'
 import FieldsConfigurator from './components/FieldsConfigurator.vue'
-import dummyFields from './lib/dummyFields';
 
 export default {
   name: 'app',
@@ -20,14 +19,22 @@ export default {
   data: () => {
       return {
         showJsonEditor: false,
-        fields: [...dummyFields]
+        fields: []
       }
+  },
+  created() {
+      // window.addEventListener('message', this.handleIncomingMessage, false);
   },
   methods: {
     handleResult(fields) {
       this.showJsonEditor = true;
       this.fields = fields;
-    }
+    },
+    handleBack(fields) {
+      console.log('fields arr on handle back', fields)
+      this.showJsonEditor = false;
+      this.fields = fields;
+    },
   }
 }
 </script>
