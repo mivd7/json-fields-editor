@@ -83,7 +83,7 @@
     </div>
    
     <div class="btn-submit-container">
-      <button class="btn-submit" @click="emitResult()">Save configuration</button>
+      <button class="btn-submit" @click="emitResult()">Go To Fields Editor</button>
     </div>
   </div>
   
