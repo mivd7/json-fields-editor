@@ -5,7 +5,7 @@
             cancelText: 'cancel',
         }" :objData="jsonData" v-model="jsonData"/>
     <button @click="handleSubmit">Submit</button>
-    <button @click="$emit('backToConfigurator')">Back</button>
+    <button @click="$emit('backToConfigurator', fields)">Back</button>
   </div>
 </template>
 
@@ -26,12 +26,12 @@
     },
     created() {
       this.fields.map(field => {
-        if(Object.keys(field)[0].startsWith('group')) {
-          const groupName = Object.keys(field)[0];
-          let parentField = field[groupName].find(subField => subField.type === 'parent_field_' + groupName);
+        if(field.hasOwnProperty('groupId')) {
+          console.log('field has groupid', field)
+          let parentField = field.groupFields.find(subField => subField.type === 'parent_field_group' + field.groupId);
           parentField.isParentField = true;
           this.jsonData.fields.push([parentField]);
-          this.jsonData.fields.push(field[groupName].filter(x => x.type !== 'parent_field_' + groupName))
+          this.jsonData.fields.push(field.groupFields.filter(x => x.type !== 'parent_field_group'+field.groupId))
         } else {
           this.jsonData.fields.push([field])
         }

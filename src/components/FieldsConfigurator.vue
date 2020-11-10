@@ -1,6 +1,5 @@
 <template>
   <div class="row" v-if="!showEditField">
-    <p>{{fieldProps}}</p>
     <div class="col-3" style="position: relative;">
       <div class="row" >
           <div class="col-9">      
@@ -14,7 +13,7 @@
           </div>
       </div>
       <div class="field-type-container">        
-        <draggable class="available-fields-list-group list-group" :list="availableFields" group="people" @change="handleFieldChange">
+        <draggable class="available-fields-list-group list-group" :move="checkSingleFieldMove" :list="availableFields" group="people" @change="handleFieldChange">
           <div class="list-group-item" v-for="(field, index) in availableFields" :key="index"
             style="background-color: transparent;">
             {{ field.type }}
@@ -36,12 +35,12 @@
         </div>
       </div>
       <div class="field-group-container" v-if="groups.length > 0">
-        <div class="field-group-list" v-for="group in groups" :key="group.id">
+        <div class="field-group-list" v-for="group in groups" :key="group.groupId">
 
           <draggable class="group-fields-list-group list-group" v-if="group.groupFields" :list="group.groupFields"
-            group="people" draggable=".list-group-item" :move="checkFieldMove" @change="handleOrderChange" :sort="checkFieldMove">
+            group="people" draggable=".list-group-item" :move="checkGroupFieldMove" @change="handleOrderChange" :sort="checkGroupFieldMove">
             <div slot="header" class="list-group-header" style="background-color: green; color: white;">
-              <span>Group {{group.id + 1}}</span>
+              <span>Group {{group.groupId + 1}}</span>
             </div>
 
             <div class="list-group-item" v-for="(field, fieldIndex) in group.groupFields"
@@ -72,7 +71,7 @@
         <div class="field-group-list">
           <draggable class="order-fields-list-group list-group" :move="checkOrderMove" :list="orderedFields" group="people">
             <div v-for="(field, index) in orderedFields" :key="index">
-              <div v-if="field.hasOwnProperty('id')" class="list-group-item">{{index + 1}}. 
+              <div v-if="field.hasOwnProperty('groupId')" class="list-group-item">{{index + 1}}. 
                 <!-- {{field.groupFields.map(groupField => groupField.type)}} -->
                 <span v-for="(groupField, index) in field.groupFields" :key="index">{{groupField.type}}, </span>
               </div>
@@ -105,7 +104,12 @@
       EditFieldForm,
       HelpModal
     },
-    props: ['fieldProps'],
+    props: {
+      fieldProps: {
+        type: Array,
+        required: true,
+      },
+    },
     data() {
       return {
         availableFields: [],
@@ -122,7 +126,7 @@
     methods: {
       addGroup: function () {
         let newGroup = {
-          id: this.groupAmount,
+          groupId: this.groupAmount,
           groupFields: [{
             type: 'parent_field_group' + this.groupAmount,
             header: '',
@@ -139,7 +143,12 @@
       emitResult: function () {
         this.$emit('configuratorResult', this.orderedFields);
       },
-      checkFieldMove: function(e) {
+      checkSingleFieldMove: function(e) {
+        if(e.to.getAttribute('class').includes('order-fields-list-group')) {
+          return false;
+        }
+      },
+      checkGroupFieldMove: function(e) {
         if(e.draggedContext.element.type.startsWith('parent_field') || e.draggedContext.futureIndex === 0) {
           return false;
         }
@@ -222,9 +231,14 @@
     },
     created() {
       window.addEventListener('message', this.handleIncomingMessage, false);
+      if(this.fieldProps.length > 0) {
+          this.groups = this.fieldProps.filter(field => field.hasOwnProperty('groupId'));
+          this.groupAmount = this.groups.length
+          this.availableFields = this.fieldProps.filter(field => !field.hasOwnProperty('groupId'));
+          this.orderedFields = this.groups.concat(this.availableFields);
+      }
     },
-
-  };
+  }
 </script>
 <style>
   .row {

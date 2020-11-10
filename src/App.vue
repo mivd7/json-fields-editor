@@ -30,8 +30,10 @@ export default {
       this.showJsonEditor = true;
       this.fields = fields;
     },
-    handleBack() {
+    handleBack(fields) {
+      console.log('fields arr on handle back', fields)
       this.showJsonEditor = false;
+      this.fields = fields;
     },
   }
 }
