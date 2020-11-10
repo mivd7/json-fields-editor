@@ -4,8 +4,9 @@
             confirmText: 'confirm',
             cancelText: 'cancel',
         }" :objData="jsonData" v-model="jsonData"/>
-    <button @click="handleSubmit">Submit</button>
-    <button @click="$emit('backToConfigurator', fields)">Back</button>
+    
+    <button @click="$emit('backToConfigurator', fields)">Back To Configurator</button><br>
+    <button @click="handleSubmit" style="margin-top: 10px;">Save Field Configuration</button>
   </div>
 </template>
 

@@ -31,7 +31,6 @@ export default {
       this.fields = fields;
     },
     handleBack(fields) {
-      console.log('fields arr on handle back', fields)
       this.showJsonEditor = false;
       this.fields = fields;
     },
