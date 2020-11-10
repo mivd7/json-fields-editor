@@ -93,7 +93,7 @@
 </template>
 <script>
   import draggable from 'vuedraggable';
-  // import dummyFields from '../lib/dummyFields';
+  import dummyFields from '../lib/dummyFields';
   import EditFieldForm from './EditFieldForm';
   import HelpModal from './HelpModal';
 
@@ -133,7 +133,8 @@
       handleOrderChange: function (parentFieldType) {
         const groupExists = this.orderedFields.findIndex(field => Object.keys(field)[0] === parentFieldType) !== -1;
         const groupNumber = Number(parentFieldType.replace(/\D/g, ""));
-        if (!groupExists) {
+        if (groupExists) {
+          console.log('this.groups on orderchange', this.groups)
           this.orderedFields = this.filterDuplicates(this.groups.concat(this.orderedFields), groupNumber - 1);
         }  
       },
@@ -194,10 +195,10 @@
       },
       handleIncomingMessage(e) {
         const validOrigins = ["http://ap.localtest.me", "http://bob.zalinco.com", "http://ap.d-promo.com"]
-        if (validOrigins.indexOf(e.origin) !== -1) {
-          const iframeFields = JSON.parse(e.data)
-          console.log(iframeFields)
-          iframeFields.map(field => {
+        if (validOrigins.indexOf(e.origin) !== -1 && this.orderedFields.length === 0) {
+          //handle initial input from bob iframe parent
+          const initialFields = JSON.parse(e.data)
+          initialFields.map(field => {
             if(field !== 'address_fields') {
               this.availableFields.push({
                   type: field,

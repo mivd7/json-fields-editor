@@ -39,6 +39,7 @@
     },
     methods: {
       handleSubmit() {
+        //send to ifrrame parent
         window.alert(JSON.stringify(this.jsonData));
       },
       
