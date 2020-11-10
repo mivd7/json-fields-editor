@@ -8,7 +8,7 @@
 
 <script>
 import Editor from './components/Editor.vue'
-import FieldsConfigurator from './components/FieldsConfigurator.vue'å
+import FieldsConfigurator from './components/FieldsConfigurator.vue'
 
 export default {
   name: 'app',
