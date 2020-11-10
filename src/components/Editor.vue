@@ -27,7 +27,6 @@
     created() {
       this.fields.map(field => {
         if(field.hasOwnProperty('groupId')) {
-          console.log('field has groupid', field)
           let parentField = field.groupFields.find(subField => subField.type === 'parent_field_group' + field.groupId);
           parentField.isParentField = true;
           this.jsonData.fields.push([parentField]);
