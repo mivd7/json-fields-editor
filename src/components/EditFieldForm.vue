@@ -1,9 +1,12 @@
 <template>
 <div class="form-container">
   <h1 style="text-align: center;">Edit content for {{ field.type }}</h1>
-  <input class="input-field input-field__header" type="text" v-model="field.header" placeholder="Header"/><br>
-  <input class="input-field input-field__description" type="text" v-model="field.description" placeholder="Description"/><br>
-  <input v-if="field.hasOwnProperty('subfieldLetter')" class="input-field input-field__subletter" type="text" v-model="field.subfieldLetter" placeholder="Subfield Letter"/><br>
+    <label>Header</label><br><input class="input-field input-field__header" type="text" v-model="field.header" placeholder="Header"/><br>
+    <label>Description</label><br><input class="input-field input-fieldfield__description" type="text" v-model="field.description" placeholder="Description"/><br>
+    <div v-if="field.hasOwnProperty('subfieldLetter')" >
+      <label>Subfield Letter*</label><br><input class="input-field input-field__subletter" type="text" v-model="field.subfieldLetter" placeholder="Subfield Letter"/><br>
+      <span style="font-size: 12px; text-align: right;">*the letter that will appear in front of the sub question, leave blank if not wanted</span>
+    </div>
 
   <button @click="done">Done</button>
 </div>
@@ -37,6 +40,6 @@ export default {
     padding: 10px;
     border-radius: 10px;
     border-color: lightgrey;
-    min-width: 150px;
+    min-width: 300px;
   }
 </style>
