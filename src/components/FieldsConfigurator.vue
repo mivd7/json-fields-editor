@@ -13,7 +13,7 @@
           </div>
       </div>
       <div class="field-type-container">        
-        <draggable class="list-group" :list="availableFields" group="people" @change="handleFieldChange">
+        <draggable class="available-fields-list-group list-group" :list="availableFields" group="people" @change="handleFieldChange">
           <div class="list-group-item" v-for="(field, index) in availableFields" :key="index"
             style="background-color: transparent;">
             {{ field.type }}
@@ -35,15 +35,15 @@
         </div>
       </div>
       <div class="field-group-container" v-if="groups.length > 0">
-        <div class="field-group-list" v-for="(group, groupIndex) in groups" :key="groupIndex">
+        <div class="field-group-list" v-for="group in groups" :key="group.id">
 
-          <draggable class="list-group" v-if="group['group' + groupIndex]" :list="group['group' + groupIndex]"
-            group="people" draggable=".list-group-item" :move="checkFieldMove" @change="handleOrderChange('group'+groupIndex)" :sort="checkFieldMove">
+          <draggable class="group-fields-list-group list-group" v-if="group.groupFields" :list="group.groupFields"
+            group="people" draggable=".list-group-item" :move="checkFieldMove" @change="handleOrderChange" :sort="checkFieldMove">
             <div slot="header" class="list-group-header" style="background-color: green; color: white;">
-              <span>Group {{groupIndex + 1}}</span>
+              <span>Group {{group.id + 1}}</span>
             </div>
 
-            <div class="list-group-item" v-for="(field, fieldIndex) in group['group' + groupIndex]"
+            <div class="list-group-item" v-for="(field, fieldIndex) in group.groupFields"
               :key="fieldIndex">
               <span v-if="field.type.startsWith('parent')">Parent Field <a @click="editFieldContent(field)" style="color: green; text-decoration: underline; text-align: right;">edit</a></span>
               <span v-else>{{field.type}} <a @click="editFieldContent(field)" style="color: green; text-decoration: underline; text-align: right;">edit</a></span>
@@ -69,12 +69,13 @@
       </div>
       <div class="field-group-container">
         <div class="field-group-list">
-          <draggable class="list-group" :list="orderedFields" group="people">
-            <div v-for="(value, index) in orderedFields" :key="index">
-              <div v-if="Array.isArray(value[Object.keys(value)[0]])" class="list-group-item">{{index + 1}}.
-                <span v-for="(val, valIndex) in value[Object.keys(value)[0]]" :key="valIndex">{{val.type}}, </span>
+          <draggable class="order-fields-list-group list-group" :move="checkOrderMove" :list="orderedFields" group="people">
+            <div v-for="(field, index) in orderedFields" :key="index">
+              <div v-if="field.hasOwnProperty('id')" class="list-group-item">{{index + 1}}. 
+                <!-- {{field.groupFields.map(groupField => groupField.type)}} -->
+                <span v-for="(groupField, index) in field.groupFields" :key="index">{{groupField.type}}, </span>
               </div>
-              <div v-else class="list-group-item">{{index + 1}}. {{value.type}} <a @click="editFieldContent(value)" style="color: green; text-decoration: underline; text-align: right;">edit</a></div>
+              <div v-else class="list-group-item">{{index + 1}}. {{field.type}} <a @click="editFieldContent(field)" style="color: green; text-decoration: underline; text-align: right;">edit</a></div>
             </div>
           </draggable>
         </div>
@@ -120,7 +121,8 @@
     methods: {
       addGroup: function () {
         let newGroup = {
-          [`group${this.groupAmount}`]: [{
+          id: this.groupAmount,
+          groupFields: [{
             type: 'parent_field_group' + this.groupAmount,
             header: '',
             description: ''
@@ -129,12 +131,9 @@
         this.groups.push(newGroup)
         this.groupAmount++
       },
-      handleOrderChange: function (parentFieldType) {
-        const groupExists = this.orderedFields.findIndex(field => Object.keys(field)[0] === parentFieldType) !== -1;
-        const groupNumber = Number(parentFieldType.replace(/\D/g, ""));
-        if (!groupExists) {
-          this.orderedFields = this.filterDuplicates(this.groups.concat(this.orderedFields), groupNumber - 1);
-        }  
+      handleOrderChange: function (e) {
+        const singleFields = this.orderedFields.filter(field => !field.hasOwnProperty('groupFields'));
+        this.orderedFields = this.groups.concat(singleFields);
       },
       emitResult: function () {
         this.$emit('configuratorResult', this.orderedFields);
@@ -144,18 +143,15 @@
           return false;
         }
       },
+      checkOrderMove: function(e) {
+        if(!e.to.getAttribute('class').includes('order-fields-list-group')) {
+          return false;
+        }
+      },
       handleFieldChange: function(e) {
         if(e.removed) {
           this.orderedFields = this.orderedFields.filter(field => field.type !== e.removed.element.type);
         }
-      },
-      filterDuplicates(fieldsArray, prevGroupNum) {
-        const filter = fieldsArray.filter(el => Object.keys(el)[0] === 'group' + prevGroupNum);
-        if(filter.length > 1) {
-          const duplicateIndex = fieldsArray.findIndex(el => Object.keys(el)[0] ==='group' + prevGroupNum);
-          fieldsArray.splice(duplicateIndex, 1);
-        }
-        return fieldsArray;
       },
       editFieldContent: function (item) {
         if (!Array.isArray(item)) {
@@ -181,15 +177,11 @@
           default:
             break;
         }
-        if(this.showHelpModal === false) {
-          this.showHelpModal = true
-        }
+        this.showHelpModal = true
       },
       handleMouseLeave: function() {
         this.helpTopic = '';
-        if(this.showHelpModal === true) {
-          this.showHelpModal = false;
-        }
+        this.showHelpModal = false;
       }
     },
     created() {
