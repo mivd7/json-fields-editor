@@ -46,7 +46,7 @@
             <div class="list-group-item" v-for="(field, fieldIndex) in group.groupFields"
               :key="fieldIndex">
               <span v-if="field.type.startsWith('parent')">Parent Field <a @click="editFieldContent(field)" style="color: green; text-decoration: underline; text-align: right;">edit</a></span>
-              <span v-else>{{field.type}} <a @click="editFieldContent(field)" style="color: green; text-decoration: underline; text-align: right;">edit</a></span>
+              <span v-else>{{field.type}} <a @click="editFieldContent(field, group.groupId)" style="color: green; text-decoration: underline; text-align: right;">edit</a></span>
             </div>
           </draggable>
         </div>
@@ -163,14 +163,17 @@
           this.orderedFields = this.orderedFields.filter(field => field.type !== e.removed.element.type);
         }
       },
-      editFieldContent: function (item) {
-        if (!Array.isArray(item)) {
-          this.editFieldItem = item;
-          this.showEditField = true;
-        } else {
-          this.editFieldItem = item.find(x => x.type.startsWith('parent_field'));
-          this.showEditField = true;
+      editFieldContent: function (item, groupId) {
+        this.editFieldItem = item;
+        if(typeof groupId !== 'undefined') {
+          const group = this.groups.find(group => group.groupId === groupId);
+          const subFields = group.groupFields.filter(groupField => groupField.type !== 'parent_field_group' + group.groupId);
+          subFields.forEach(function (subField, index) {
+            subField.subfieldLetter = String.fromCharCode(65 + index).toLowerCase();
+          });
+          this.editFieldItem = subFields.find(subField => subField.type === item.type);
         }
+        this.showEditField = true;
       },
       handleMouseOver: function (column) {
         this.helpTopic = column;

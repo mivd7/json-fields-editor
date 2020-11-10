@@ -3,6 +3,8 @@
   <h1 style="text-align: center;">Edit content for {{ field.type }}</h1>
   <input class="input-field input-field__header" type="text" v-model="field.header" placeholder="Header"/><br>
   <input class="input-field input-field__description" type="text" v-model="field.description" placeholder="Description"/><br>
+  <input v-if="field.hasOwnProperty('subfieldLetter')" class="input-field input-field__subletter" type="text" v-model="field.subfieldLetter" placeholder="Subfield Letter"/><br>
+
   <button @click="done">Done</button>
 </div>
 </template>
