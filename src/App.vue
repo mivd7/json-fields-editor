@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <h1>Fields Configurator</h1>
-    <FieldsConfigurator  v-if="!showJsonEditor" :fieldProps="fields" v-on:configuratorResult="handleResult"/>
-    <Editor v-if="showJsonEditor" :fields="fields" v-on:backToConfigurator="handleBack"/>
+    <FieldsConfigurator  v-if="!showJsonEditor" :fieldProps="fields" v-on:configurator-result="goToJsonEditor" v-on:submit="handleSubmit"/>
+    <Editor v-if="showJsonEditor" :fields="fields" v-on:back="handleBack" v-on:submit="handleSubmit"/>
   </div>
 </template>
 
@@ -23,13 +23,16 @@ export default {
       }
   },
   methods: {
-    handleResult(fields) {
+    goToJsonEditor(fields) {
       this.showJsonEditor = true;
       this.fields = fields;
     },
     handleBack(fields) {
       this.showJsonEditor = false;
       this.fields = fields;
+    },
+    handleSubmit() {
+      window.parent.postMessage(this.jsonData.fields, '*')
     },
   }
 }

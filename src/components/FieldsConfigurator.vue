@@ -83,7 +83,8 @@
     </div>
    
     <div class="btn-submit-container">
-      <button class="btn-submit" @click="emitResult()">Go To Fields Editor</button>
+      <button class="btn-submit" @click="$emit('configurator-result', this.orderedFields)">Show Overview</button>
+      <button @click="$emit('submit', jsonData.fields)" style="margin-top: 10px;">Submit Field Configuration</button>
     </div>
   </div>
   
@@ -133,13 +134,6 @@
         }
         this.groups.push(newGroup)
       },
-      handleOrderChange: function () {
-        const singleFields = this.orderedFields.filter(field => !field.hasOwnProperty('groupFields'));
-        this.orderedFields = this.groups.concat(singleFields);
-      },
-      emitResult: function () {
-        this.$emit('configuratorResult', this.orderedFields);
-      },
       checkSingleFieldMove: function(e) {
         if(e.to.getAttribute('class').includes('order-fields-list-group')) {
           return false;
@@ -155,11 +149,6 @@
           return false;
         }
       },
-      handleFieldChange: function(e) {
-        if(e.removed) {
-          this.orderedFields = this.orderedFields.filter(field => field.type !== e.removed.element.type);
-        }
-      },
       editFieldContent: function (item, groupId) {
         this.editFieldItem = item;
         if(typeof groupId !== 'undefined') {
@@ -171,6 +160,15 @@
           this.editFieldItem = subFields.find(subField => subField.type === item.type);
         }
         this.showEditField = true;
+      },
+      handleOrderChange: function () {
+        const singleFields = this.orderedFields.filter(field => !field.hasOwnProperty('groupFields'));
+        this.orderedFields = this.groups.concat(singleFields);
+      },
+      handleFieldChange: function(e) {
+        if(e.removed) {
+          this.orderedFields = this.orderedFields.filter(field => field.type !== e.removed.element.type);
+        }
       },
       handleMouseOver: function (column) {
         this.helpTopic = column;
@@ -198,24 +196,22 @@
         if (validOrigins.indexOf(e.origin) !== -1 && this.orderedFields.length === 0) {
           //handle initial input from bob iframe parent
           const fieldInput = JSON.parse(e.data);
-          console.log('input from bob', fieldInput);
-          this.setupFields(fieldInput);
+          this.setupFieldsConfigurator(fieldInput);
         }   
       },
-      setupFields(initialFields) {
+      setupFieldsConfigurator(initialFields) {
         if(Array.isArray(initialFields[0])) {
-          initialFields.map((field, index) => {
-            if(field.length > 1) {
-              //subfields collection insert parent field
-              field.unshift(initialFields[index - 1][0])
+          initialFields.map((element, index) => {
+            if(element.length > 1) {
+              element.unshift(initialFields[index - 1][0])
               this.groups.push({
                 groupId: this.groups.length,
-                groupFields: field
+                groupFields: element
               })
-            } else if(!field[0].type.startsWith('parent')) {
-              this.availableFields.push(field[0])
+            } else if(!element[0].type.startsWith('parent')) {
+              this.availableFields.push(element[0])
             }
-          })
+          });
           this.orderedFields = this.groups.concat(this.availableFields);
         } else {
           initialFields.map(field => {
@@ -244,7 +240,7 @@
                 description: '',
               })
             }
-          })
+          });
           this.orderedFields = [...this.availableFields];
         }
       }

@@ -5,8 +5,8 @@
             cancelText: 'cancel',
         }" :objData="jsonData" v-model="jsonData"/>
     
-    <button @click="$emit('backToConfigurator', fields)">Back To Configurator</button><br>
-    <button @click="handleSubmit" style="margin-top: 10px;">Save Field Configuration</button>
+    <button @click="$emit('back', fields)">Back To Fields Configurator</button><br>
+    <button @click="$emit('submit', jsonData.fields)" style="margin-top: 10px;">Submit Field Configuration</button>
   </div>
 </template>
 
@@ -37,19 +37,13 @@
         }
       })
     },
-    methods: {
-      handleSubmit() {
-        //send to ifrrame parent
-        window.parent.postMessage(this.jsonData.fields, '*')
-      },
-      
-    },
   };
 </script>
 <style>
 .val-input {
   min-width: 500px;
 }
+
 .block {
   border-bottom: 1px solid black;
 }
@@ -58,15 +52,12 @@
   border-bottom: none !important;
 }
 
-.tools-types {
-  display: none;
-}
-
 .json-desc {
   visibility: hidden;
 }
 
-.key-input {
-   pointer-events: none;
+.tools,
+.v-json-edit-icon-add {
+  display: none;
 }
 </style>
