@@ -22,9 +22,6 @@ export default {
         fields: []
       }
   },
-  created() {
-      // window.addEventListener('message', this.handleIncomingMessage, false);
-  },
   methods: {
     handleResult(fields) {
       this.showJsonEditor = true;

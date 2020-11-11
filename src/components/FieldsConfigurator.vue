@@ -93,7 +93,6 @@
 </template>
 <script>
   import draggable from 'vuedraggable';
-  import dummyFields from '../lib/dummyFields';
   import EditFieldForm from './EditFieldForm';
   import HelpModal from './HelpModal';
 
@@ -115,7 +114,6 @@
         availableFields: [],
         groups: [],
         orderedFields: [],
-        groupAmount: 0,
         showEditField: false,
         showHelpModal: false,
         helpTopic: '',
@@ -126,17 +124,16 @@
     methods: {
       addGroup: function () {
         let newGroup = {
-          groupId: this.groupAmount,
+          groupId: this.groups.length,
           groupFields: [{
-            type: 'parent_field_group' + this.groupAmount,
+            type: 'parent_field_group' + this.groups.length,
             header: '',
             description: ''
           }]
         }
         this.groups.push(newGroup)
-        this.groupAmount++
       },
-      handleOrderChange: function (e) {
+      handleOrderChange: function () {
         const singleFields = this.orderedFields.filter(field => !field.hasOwnProperty('groupFields'));
         this.orderedFields = this.groups.concat(singleFields);
       },
@@ -200,7 +197,27 @@
         const validOrigins = ["http://ap.localtest.me", "http://bob.zalinco.com", "http://ap.d-promo.com"]
         if (validOrigins.indexOf(e.origin) !== -1 && this.orderedFields.length === 0) {
           //handle initial input from bob iframe parent
-          const initialFields = JSON.parse(e.data)
+          const fieldInput = JSON.parse(e.data);
+          console.log('input from bob', fieldInput);
+          this.setupFields(fieldInput);
+        }   
+      },
+      setupFields(initialFields) {
+        if(Array.isArray(initialFields[0])) {
+          initialFields.map((field, index) => {
+            if(field.length > 1) {
+              //subfields collection insert parent field
+              field.unshift(initialFields[index - 1][0])
+              this.groups.push({
+                groupId: this.groups.length,
+                groupFields: field
+              })
+            } else if(!field[0].type.startsWith('parent')) {
+              this.availableFields.push(field[0])
+            }
+          })
+          this.orderedFields = this.groups.concat(this.availableFields);
+        } else {
           initialFields.map(field => {
             if(field !== 'address_fields') {
               this.availableFields.push({
@@ -229,16 +246,15 @@
             }
           })
           this.orderedFields = [...this.availableFields];
-        }   
-      },
+        }
+      }
     },
     created() {
       window.addEventListener('message', this.handleIncomingMessage, false);
       if(this.fieldProps.length > 0) {
-          this.groups = this.fieldProps.filter(field => field.hasOwnProperty('groupId'));
-          this.groupAmount = this.groups.length
-          this.availableFields = this.fieldProps.filter(field => !field.hasOwnProperty('groupId'));
-          this.orderedFields = this.groups.concat(this.availableFields);
+        this.groups = this.fieldProps.filter(field => field.hasOwnProperty('groupId'));
+        this.availableFields = this.fieldProps.filter(field => !field.hasOwnProperty('groupId'));
+        this.orderedFields = this.groups.concat(this.availableFields);
       }
     },
   }
