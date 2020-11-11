@@ -31,8 +31,8 @@ export default {
       this.showJsonEditor = false;
       this.fields = fields;
     },
-    handleSubmit() {
-      window.parent.postMessage(this.jsonData.fields, '*')
+    handleSubmit(fields) {
+      window.parent.postMessage(fields, '*')
     },
   }
 }

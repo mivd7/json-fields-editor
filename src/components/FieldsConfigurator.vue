@@ -83,7 +83,7 @@
     </div>
    
     <div class="btn-submit-container">
-      <button class="btn-submit" @click="$emit('configurator-result', this.orderedFields)">Show Overview</button>
+      <button class="btn-submit" @click="$emit('configurator-result', orderedFields)">Show Overview</button>
       <button @click="$emit('submit', jsonData.fields)" style="margin-top: 10px;">Submit Field Configuration</button>
     </div>
   </div>
